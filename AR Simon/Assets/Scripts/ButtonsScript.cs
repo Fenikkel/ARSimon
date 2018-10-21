@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Vuforia;
@@ -6,8 +7,16 @@ using Vuforia;
 public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
 {
 
+    //private string[] simonArray = new string[2];
+    List<int> simonList = new List<int>();
+    List<string> playerList = new List<string>();
+
+    private int contador = 0; //rondas superadas +1
+
+
     private GameObject redVB, blueVB, greenVB, yellowVB;
     private GameObject redCube, yellowCube, greenCube, blueCube;
+    private GameObject textButtonStart, buttonStart;
 
     private VirtualButtonBehaviour redBehaviour;
     private VirtualButtonBehaviour yellowBehaviour;
@@ -34,15 +43,24 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
     public AudioClip[] aClips;
     public AudioSource myAudioSource;
 
+    string btnName;
+    bool gameOver;
+
     void Start () {
+
+        gameOver = false;
+
         redVB = GameObject.Find("RedButton");
         yellowVB = GameObject.Find("YellowButton");
-        blueVB = GameObject.Find("BlueButton");
+        blueVB = GameObject.Find("BleuButton"); //recorda que se diu "Bleu"
         greenVB = GameObject.Find("GreenButton");
         redCube = GameObject.Find("RedCube");
         yellowCube = GameObject.Find("YellowCube");
-        blueCube = GameObject.Find("BLueCube");
+        blueCube = GameObject.Find("BlueCube");
         greenCube = GameObject.Find("GreenCube");
+
+        textButtonStart = GameObject.Find("StartText");
+        buttonStart = GameObject.Find("StartButton");
 
         redBehaviour = redVB.GetComponent<VirtualButtonBehaviour>();
         yellowBehaviour = yellowVB.GetComponent<VirtualButtonBehaviour>();
@@ -62,15 +80,21 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
 
 
         redColor = new Color(208.0f / 255.0f, 20.0f / 255.0f, 20.0f / 255.0f, 1.0f);//redRenderer.material.color;
-        redColorTrans = new Color(208.0f / 255.0f, 20.0f / 255.0f, 20.0f / 255.0f, 0.5f);//redRenderer.material.color;
+        redColorTrans = new Color(208.0f / 255.0f, 20.0f / 255.0f, 20.0f / 255.0f, 0.4f);//redRenderer.material.color;
         //redColorTrans.a = 0.7f;
 
         yellowColor = yellowRenderer.material.color;
         yellowColorTrans = yellowRenderer.material.color;
-        yellowColorTrans.a = 0.7f;
+        yellowColorTrans.a = 0.4f;
 
         greenColor = greenRenderer.material.color;
+        greenColorTrans = greenRenderer.material.color;
+        greenColorTrans.a = 0.4f;
+
+
         blueColor = blueRenderer.material.color;
+        blueColorTrans = blueRenderer.material.color;
+        blueColorTrans.a = 0.4f;
 
 
 
@@ -121,7 +145,7 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
             //SoundAndColor("blue");
             //blueCube.SetActive(false);
             myAudioSource.clip = aClips[3];
-             myAudioSource.Play();
+            myAudioSource.Play();
             blueRenderer.material.color = blueColorTrans;
 
             /*  blueCube.GetComponent<Renderer>().material.SetColor("_Color", Color.gray);*/
@@ -137,10 +161,10 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
             myAudioSource.Play();
             greenRenderer.material.color = greenColorTrans;
 
-            /*greenCube.GetComponent<Renderer>().material.SetColor("_Color", Color.gray);*/
+            //greenCube.GetComponent<Renderer>().material.SetColor("_Color", Color.gray);
             //greenColor.a = 0.5f;
 
-
+        
 
         }
 
@@ -159,32 +183,132 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
         yellowCube.SetActive(true);
         */
         //redCube.GetComponent<Renderer>().material.color = Color(1, 208.0f/255.0f, 20.0f / 255.0f, 20.0f / 255.0f);
-
+        
         if (vb.Equals(redBehaviour))
         {
-            redCube.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+            //redCube.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
+            redRenderer.material.color = redColor;
         }
         else if (vb.Equals(yellowBehaviour))
         {
-            yellowCube.GetComponent<Renderer>().material.SetColor("_Color", Color.yellow);
+            //yellowCube.GetComponent<Renderer>().material.SetColor("_Color", Color.yellow);
+            yellowRenderer.material.color = yellowColor;
 
         }
         else if (vb.Equals(blueBehaviour))//blueVB.GetComponent<VirtualButtonBehaviour>()
         {
-            blueCube.GetComponent<Renderer>().material.SetColor("_Color", Color.blue);
-
+            blueRenderer.material.color = blueColor;
         }
         else if (vb.Equals(greenBehaviour))
         {
-            greenCube.GetComponent<Renderer>().material.SetColor("_Color", Color.green);
-
+            greenRenderer.material.color = greenColor;
         }
+
 
 
 
 
 
     }
+
+    void Update() {
+        if (Input.touchCount > 0 && Input.touches[0].phase == TouchPhase.Began)
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
+            RaycastHit Hit;
+            if (Physics.Raycast(ray, out Hit))
+            {
+                btnName = Hit.transform.name;
+                switch (btnName)
+                {
+                    case "StartButton":
+                        StartCoroutine(StartSimon());
+                        break;
+
+                    case "StartText":
+                        StartCoroutine(StartSimon());
+                        break;
+
+                    case "RedCube":
+                        myAudioSource.clip = aClips[0];
+                        myAudioSource.Play();
+
+                        
+                        //StartSimon();
+
+                        break;
+                    case "GreenCube":
+                        myAudioSource.clip = aClips[1];
+                        myAudioSource.Play();
+                        break;
+
+                    case "YellowCube":
+                        myAudioSource.clip = aClips[2];
+                        myAudioSource.Play();
+                        break;
+                    case "BlueCube":
+                        myAudioSource.clip = aClips[3];
+                        myAudioSource.Play();
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    IEnumerator StartSimon()
+    {
+        textButtonStart.SetActive(false);
+        buttonStart.SetActive(false);
+
+        
+        
+
+        while (!gameOver)
+        {
+            contador++;
+
+            simonList.Add(UnityEngine.Random.Range(0,3)); //tinc que dirli unity engine que sino se lia el cerdo
+            //print(Time.time);
+            yield return new WaitForSeconds(1);
+            StartCoroutine(PlaySimonList());
+
+            //print(Time.time);
+            //myAudioSource.clip = aClips[3];
+            //myAudioSource.Play();
+            //blueRenderer.material.color = blueColorTrans;
+            yield return new WaitForSeconds(1);
+            //blueRenderer.material.color = blueColor;
+            //TURNO DEL JUGADOR (llamar otra coroutine o funcion i hacer otro yield?)
+            /*if (contador == 3)
+            {
+                gameOver = true;
+                textButtonStart.SetActive(true);
+                buttonStart.SetActive(true);
+
+            }*/
+        }
+        gameOver = false;
+
+
+        //yield return null;
+    }
+
+    IEnumerator PlaySimonList()
+    {
+        for(int i =0; i < simonList.Count; i++)
+        {
+            myAudioSource.clip = aClips[i];
+            myAudioSource.Play();
+            yield return new WaitForSeconds(1);
+        }
+        //yield return new WaitForSeconds(1);
+    }
+
+    //yield WaitForSeconds(0.25);
+
+
     /*
     IEnumerator SoundAndColor(string color)
     {
@@ -217,4 +341,19 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
         yield return null;
     }
     */
+
+    /*
+    void Awake()
+    {
+        StartCoroutine(Do());
+    }
+
+    IEnumerator Do()
+    {
+        Debug.Log("This will show instantly");
+        yield return new WaitForSeconds(2);
+        Debug.Log("This will print after 2 seconds");
+    }
+    */
+
 }
