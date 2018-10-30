@@ -268,17 +268,24 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
         while (!gameOver)
         {
             contador++;
-
+            //no acaba de ser molt random aço :(
+            //por ser que el 0 no estiga en aClips?
             simonList.Add(UnityEngine.Random.Range(0,3)); //tinc que dirli unity engine que sino se lia el cerdo
             //print(Time.time);
             yield return new WaitForSeconds(1);
-            StartCoroutine(PlaySimonList());
+            //PlaySimonList();
 
+            for (int i = 0; i < simonList.Count; i++)
+            {
+                myAudioSource.clip = aClips[i];
+                myAudioSource.Play();
+                yield return new WaitForSeconds(1);
+            }
             //print(Time.time);
             //myAudioSource.clip = aClips[3];
             //myAudioSource.Play();
             //blueRenderer.material.color = blueColorTrans;
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(1); //mirar de llevar pauses
             //blueRenderer.material.color = blueColor;
             //TURNO DEL JUGADOR (llamar otra coroutine o funcion i hacer otro yield?)
             /*if (contador == 3)
@@ -295,14 +302,9 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
         //yield return null;
     }
 
-    IEnumerator PlaySimonList()
+    public void PlaySimonList()
     {
-        for(int i =0; i < simonList.Count; i++)
-        {
-            myAudioSource.clip = aClips[i];
-            myAudioSource.Play();
-            yield return new WaitForSeconds(1);
-        }
+        
         //yield return new WaitForSeconds(1);
     }
 
