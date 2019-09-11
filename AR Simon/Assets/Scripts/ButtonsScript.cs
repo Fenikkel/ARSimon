@@ -7,9 +7,15 @@ using Vuforia;
 public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
 {
 
+    private bool touchActivated = true;
+
     //private string[] simonArray = new string[2];
     List<int> simonList = new List<int>();
-    List<string> playerList = new List<string>();
+    List<int> playerList = new List<int>();
+
+    Queue simonQ = new Queue();
+
+
 
     private int contador = 0; //rondas superadas +1
 
@@ -46,8 +52,53 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
     string btnName;
     bool gameOver;
 
+    private float playSoundTimer;
+    public float timeBetweenSounds = 2.0f;
+
+    private float simonWaitTimer;
+    public float SimonTimeBetween = 1.5f;
+
+    private float timer;
+    public float timeBetween = 1.0f;
+
+
     void Start () {
 
+        playerList.Clear();
+        simonList.Clear();
+
+        simonList.Add(0);
+        simonList.Add(2);
+
+        simonList.Add(1);
+        simonList.Add(1);
+        simonList.Add(1);
+        simonList.Add(1);
+        simonList.Add(1);
+        simonList.Add(1);
+
+        simonQ.Enqueue(1);
+        simonQ.Enqueue(1);
+        simonQ.Enqueue(1);
+        simonQ.Enqueue(1);
+        simonQ.Enqueue(1);
+        simonQ.Enqueue(1);
+        simonQ.Enqueue(1);
+
+
+
+
+        playSoundTimer = timeBetweenSounds;
+        timer = timeBetween;
+        simonWaitTimer = SimonTimeBetween;
+        //DEBUGGING
+        //SimonTurn();
+        //DEBUGGING
+
+
+
+
+        touchActivated = true;
         gameOver = false;
 
         redVB = GameObject.Find("RedButton");
@@ -212,7 +263,7 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
     }
 
     void Update() {
-        if (Input.touchCount > 0 && Input.touches[0].phase == TouchPhase.Began)
+        if (touchActivated && Input.touchCount > 0 && Input.touches[0].phase == TouchPhase.Began)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
             RaycastHit Hit;
@@ -222,31 +273,38 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
                 switch (btnName)
                 {
                     case "StartButton":
-                        StartCoroutine(StartSimon());
+                        StartGame();
+                        //StartCoroutine(StartSimon());
                         break;
 
                     case "StartText":
-                        StartCoroutine(StartSimon());
+                        StartGame();
+                        //StartCoroutine(StartSimon());
                         break;
 
-                    case "RedCube":
-                        myAudioSource.clip = aClips[0];
-                        myAudioSource.Play();
 
-                        
-                        //StartSimon();
-
-                        break;
                     case "GreenCube":
+                        PlayerMove(0);
                         myAudioSource.clip = aClips[1];
                         myAudioSource.Play();
                         break;
 
+                    case "RedCube":
+                        PlayerMove(1);
+                        myAudioSource.clip = aClips[0];
+                        myAudioSource.Play();
+
+                        break;
+
                     case "YellowCube":
+                        PlayerMove(2);
+
                         myAudioSource.clip = aClips[2];
                         myAudioSource.Play();
                         break;
                     case "BlueCube":
+                        PlayerMove(3);
+
                         myAudioSource.clip = aClips[3];
                         myAudioSource.Play();
                         break;
@@ -255,15 +313,182 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
                 }
             }
         }
+
     }
 
-    IEnumerator StartSimon()
+    private void StartGame()
+    {
+        textButtonStart.SetActive(false);
+        buttonStart.SetActive(false);
+        //SimonTurn();
+        //StartCoroutine(STurn());
+        //deffug();
+        StartCoroutine(PlayList());
+
+    }
+
+    private void Deffug() // funciona fatal
+    {
+        while (true)
+        {
+            while (playSoundTimer > 0.0f)
+            {
+                playSoundTimer -= Time.deltaTime;
+            }
+            playSoundTimer = timeBetweenSounds;
+            myAudioSource.clip = aClips[0];
+            myAudioSource.Play();
+        }
+    }
+    IEnumerator STurn()
+    {
+        touchActivated = false;
+        yield return new WaitForSeconds(2);
+
+        System.Random rnd = new System.Random();
+        int random = rnd.Next(0, 3);
+        simonList.Add(random);
+
+        StartCoroutine(PlayList());
+
+    }
+
+    IEnumerator PlayList()
+    {
+
+        /*for (int tocados = 0; tocados < simonQ.Count; tocados++)
+        {
+            myAudioSource.clip = aClips[simonQ.];
+            myAudioSource.Play();
+
+            yield return new WaitForSeconds(1);
+
+            print("Ha sonado \n");
+        }*/
+        //StartCoroutine(STurn());
+
+
+        /*
+        for (int tocados = 0; tocados < simonList.Count; tocados++)
+        {
+            myAudioSource.clip = aClips[simonList.];
+            myAudioSource.Play();
+
+            yield return new WaitForSeconds(1);
+
+            print("Ha sonado \n");
+        }*/
+
+        foreach (int sound in simonList)
+        {
+            myAudioSource.clip = aClips[sound];
+            myAudioSource.Play();
+
+            yield return new WaitForSeconds(1);
+        }
+        //StartCoroutine(STurn());
+        
+    }
+
+    private void SimonTurn()
+    {
+        while (simonWaitTimer > 0)
+        {
+            simonWaitTimer -= Time.deltaTime;
+        }
+        simonWaitTimer = SimonTimeBetween;
+
+        touchActivated = false;
+        System.Random rnd = new System.Random();
+        int random = rnd.Next(0,3);
+        //int random = UnityEngine.Random.Range(0, 3);
+
+        simonList.Add(random);
+
+        //reproducimos la simon list y al finalizar devolvemos el control al jugador
+
+        PlaySimonList();
+
+        //touchActivated = true;
+        /*
+
+        //per al debug
+        print("\n");
+        print("Jugada: "+ simonList.Count +"\n");
+        foreach (int color in simonList)
+        {
+            Console.WriteLine(color);
+        }
+        */
+        SimonTurn();
+        //PlayerTurn();
+    }
+
+    private void PlayerTurn()
+    {
+        while (timer > 0.0f)
+        {
+            timer -= Time.deltaTime;
+        }
+        timer = timeBetween;
+        print("\nPlayer ha jugado\n");
+        SimonTurn();
+
+    }
+
+    public void PlaySimonList()
+    {
+        
+        for (int tocados = 0; tocados < simonList.Count; tocados++) {
+            while (playSoundTimer > 0.0f)
+            {
+                playSoundTimer -= Time.deltaTime;
+            }
+            playSoundTimer = timeBetweenSounds;
+
+            myAudioSource.clip = aClips[0];
+            myAudioSource.Play();
+            
+            print("Ha sonado \n");
+        }
+        //yield return new WaitForSeconds(1);
+    }
+
+    private void PlayerMove(int move)
+    {
+
+        playerList.Add(move);
+
+        if (simonList.Count == playerList.Count )
+        {
+            int contador = 0;
+
+            while (contador< simonList.Count)
+            {
+                if (simonList.IndexOf(contador) != playerList.IndexOf(contador))
+                {
+                    GameOver();
+                    return;
+                }
+            }
+            playerList.Clear();
+            SimonTurn();
+
+            return;
+        }
+
+    }
+
+    private void GameOver()
+    {
+        print("GameOver");
+    }
+    
+    IEnumerator StartSimon() //NO HO ESTIC UTILITZANT
     {
         textButtonStart.SetActive(false);
         buttonStart.SetActive(false);
 
-        
-        
 
         while (!gameOver)
         {
@@ -301,12 +526,8 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
 
         //yield return null;
     }
+    
 
-    public void PlaySimonList()
-    {
-        
-        //yield return new WaitForSeconds(1);
-    }
 
     //yield WaitForSeconds(0.25);
 
