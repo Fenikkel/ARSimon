@@ -92,10 +92,21 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
         yellowVB = GameObject.Find("YellowButton");
         blueVB = GameObject.Find("BleuButton"); //recorda que se diu "Bleu"
         greenVB = GameObject.Find("GreenButton");
+
+        if (!ApplicationModel.twoPlayers)
+        {
+            redVB.SetActive(false);
+            yellowVB.SetActive(false);
+            blueVB.SetActive(false);
+            greenVB.SetActive(false);
+        }
+
         redCube = GameObject.Find("RedCube");
         yellowCube = GameObject.Find("YellowCube");
         blueCube = GameObject.Find("BlueCube");
         greenCube = GameObject.Find("GreenCube");
+
+
 
         textButtonStart = GameObject.Find("StartText");
         buttonStart = GameObject.Find("StartButton");
@@ -157,9 +168,11 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
 
                     case "RedCube":
 
-                        myAudioSource.clip = aClips[0];
-                        myAudioSource.Play();
-
+                        
+                        PlaySound(0);
+                        PressButton(0);
+                        new WaitForSeconds(delayBetweenBPressed);
+                        ReleaseButton(0);
                         if (gameStarted)
                         {
                             PlayerMove(0);
@@ -170,9 +183,10 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
 
                     case "GreenCube":
 
-                        myAudioSource.clip = aClips[1];
-                        myAudioSource.Play();
-
+                        PlaySound(1);
+                        PressButton(1);
+                        new WaitForSeconds(delayBetweenBPressed);
+                        ReleaseButton(1);
                         if (gameStarted)
                         {
                             PlayerMove(1);
@@ -182,9 +196,10 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
 
                     case "YellowCube":
 
-                        myAudioSource.clip = aClips[2];
-                        myAudioSource.Play();
-
+                        PlaySound(2);
+                        PressButton(2);
+                        new WaitForSeconds(delayBetweenBPressed);
+                        ReleaseButton(2);
                         if (gameStarted)
                         {
                             PlayerMove(2);
@@ -194,9 +209,10 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
                         break;
                     case "BlueCube":
 
-                        myAudioSource.clip = aClips[3];
-                        myAudioSource.Play();
-
+                        PlaySound(3);
+                        PressButton(3);
+                        new WaitForSeconds(delayBetweenBPressed);
+                        ReleaseButton(3);
                         if (gameStarted)
                         {
                             PlayerMove(3);
@@ -410,66 +426,76 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
     public void OnButtonPressed(VirtualButtonBehaviour vb)
     {
         
-        /*
+        
         if (vb.Equals(redBehaviour))
         {
 
-            myAudioSource.clip = aClips[0];
-            myAudioSource.Play();
-            redRenderer.material.color = redColorTrans;
+            PressButton(0);
+            PlaySound(0);
+            if (gameStarted)
+            {
+                PlayerMove(0);
+            }
 
+        }
+        else if (vb.Equals(greenBehaviour))
+        {
 
+            PressButton(1);
+            PlaySound(1);
+            if (gameStarted)
+            {
+                PlayerMove(1);
+            }
 
         }
         else if (vb.Equals(yellowBehaviour)) 
         {
 
-            myAudioSource.clip = aClips[2];
-            myAudioSource.Play();
-            yellowRenderer.material.color = yellowColorTrans;
+            PressButton(2);
+            PlaySound(2);
+            if (gameStarted)
+            {
+                PlayerMove(2);
+            }
 
 
         }
         else if (vb.Equals(blueBehaviour))
         {
 
-            myAudioSource.clip = aClips[3];
-            myAudioSource.Play();
-            blueRenderer.material.color = blueColorTrans;
+            PressButton(3);
+            PlaySound(3);
+            if (gameStarted)
+            {
+                PlayerMove(3);
+            }
 
         }
-        else if (vb.Equals(greenBehaviour))
-        {
 
-            myAudioSource.clip = aClips[1];
-            myAudioSource.Play();
-            greenRenderer.material.color = greenColorTrans;
-
-        }
-        */
+        
     }
 
     public void OnButtonReleased(VirtualButtonBehaviour vb)
     {
-        /*
+
         if (vb.Equals(redBehaviour))
         {
-            redRenderer.material.color = redColor;
-        }
-        else if (vb.Equals(yellowBehaviour))
-        {
-            yellowRenderer.material.color = yellowColor;
-
-        }
-        else if (vb.Equals(blueBehaviour))
-        {
-            blueRenderer.material.color = blueColor;
+            ReleaseButton(0);
         }
         else if (vb.Equals(greenBehaviour))
         {
-            greenRenderer.material.color = greenColor;
+            ReleaseButton(1);
+
         }
-        */
+        else if (vb.Equals(yellowBehaviour))
+        {
+            ReleaseButton(2);
+        }
+        else if (vb.Equals(blueBehaviour))
+        {
+            ReleaseButton(3);
+        }
     }
    
 }
