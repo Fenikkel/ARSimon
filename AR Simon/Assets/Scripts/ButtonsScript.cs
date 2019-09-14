@@ -3,21 +3,32 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Vuforia;
+using UnityEngine.SceneManagement;
+using System.Linq;
+
 
 public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
 {
+    public TextMesh playerTextDebugg;
+    public TextMesh simonTextDebugg;
+    public TextMesh textDebugg;
+
+    public GameObject endgameCanvas;
+
+    private IEnumerator coroutine;
 
     private bool touchActivated = true;
+    private bool gameStarted = false;
 
-    //private string[] simonArray = new string[2];
-    List<int> simonList = new List<int>();
-    List<int> playerList = new List<int>();
+    //List<int> simonList = new List<int>();
+    //List<int> playerList = new List<int>();
+    //ArrayList simonList = new ArrayList();
+    //ArrayList playerList = new ArrayList();
+    int[] simonList = new int[] {};
+    int[] playerList = new int[] { };
 
-    Queue simonQ = new Queue();
-
-
-
-    private int contador = 0; //rondas superadas +1
+    private int round = 0; //rondas superadas
+    private int playerMovesCounter = 0;
 
 
     private GameObject redVB, blueVB, greenVB, yellowVB;
@@ -50,56 +61,32 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
     public AudioSource myAudioSource;
 
     string btnName;
-    bool gameOver;
+    private bool gameOver;
 
-    private float playSoundTimer;
-    public float timeBetweenSounds = 2.0f;
 
-    private float simonWaitTimer;
-    public float SimonTimeBetween = 1.5f;
+    public float delayBetweenSimonNotes = 0.5f;
+    public float delayBetweenBPressed = 0.5f;
 
-    private float timer;
-    public float timeBetween = 1.0f;
+    public float timeBetweenRounds = 1.5f;
+
+    //public float timeBetween = 1.0f;
 
 
     void Start () {
 
-        playerList.Clear();
-        simonList.Clear();
+        coroutine = Simon();
 
-        simonList.Add(0);
-        simonList.Add(2);
+        //playerList.Clear();
+        //simonList.Clear();
 
-        simonList.Add(1);
-        simonList.Add(1);
-        simonList.Add(1);
-        simonList.Add(1);
-        simonList.Add(1);
-        simonList.Add(1);
-
-        simonQ.Enqueue(1);
-        simonQ.Enqueue(1);
-        simonQ.Enqueue(1);
-        simonQ.Enqueue(1);
-        simonQ.Enqueue(1);
-        simonQ.Enqueue(1);
-        simonQ.Enqueue(1);
-
-
-
-
-        playSoundTimer = timeBetweenSounds;
-        timer = timeBetween;
-        simonWaitTimer = SimonTimeBetween;
-        //DEBUGGING
-        //SimonTurn();
-        //DEBUGGING
-
-
-
+        playerList = new int[] { };
+        simonList = new int[] { };
 
         touchActivated = true;
+        gameStarted = false;
         gameOver = false;
+        round = 0;
+        playerMovesCounter = 0;
 
         redVB = GameObject.Find("RedButton");
         yellowVB = GameObject.Find("YellowButton");
@@ -130,9 +117,8 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
         greenRenderer = greenCube.GetComponent<Renderer>();
 
 
-        redColor = new Color(208.0f / 255.0f, 20.0f / 255.0f, 20.0f / 255.0f, 1.0f);//redRenderer.material.color;
-        redColorTrans = new Color(208.0f / 255.0f, 20.0f / 255.0f, 20.0f / 255.0f, 0.4f);//redRenderer.material.color;
-        //redColorTrans.a = 0.7f;
+        redColor = new Color(208.0f / 255.0f, 20.0f / 255.0f, 20.0f / 255.0f, 1.0f);//forma cutre
+        redColorTrans = new Color(208.0f / 255.0f, 20.0f / 255.0f, 20.0f / 255.0f, 0.4f);
 
         yellowColor = yellowRenderer.material.color;
         yellowColorTrans = yellowRenderer.material.color;
@@ -147,118 +133,7 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
         blueColorTrans = blueRenderer.material.color;
         blueColorTrans.a = 0.4f;
 
-
-
-
-        //redVB.GetComponent<VirtualButtonBehaviour>().RegisterEventHandler(this);
-        //yellowVB.GetComponent<VirtualButtonBehaviour>().RegisterEventHandler(this);
-        //blueVB.GetComponent<VirtualButtonBehaviour>().RegisterEventHandler(this);
-        //greenVB.GetComponent<VirtualButtonBehaviour>().RegisterEventHandler(this);
-
         myAudioSource = GetComponent<AudioSource>();
-
-    }
-
-
-    public void OnButtonPressed(VirtualButtonBehaviour vb)
-    {
-        //throw new System.NotImplementedException();
-
-        if (vb.Equals(redBehaviour)) //(redVB.GetComponent<VirtualButtonBehaviour>())
-        {
-
-            //redCube.SetActive(false);
-            myAudioSource.clip = aClips[0];
-            myAudioSource.Play();
-            /* redCube.GetComponent<Renderer>().material.SetColor("_Color", Color.gray);*/
-            //SoundAndColor("red");
-            //redColor.a = 0.5f;
-            redRenderer.material.color = redColorTrans;
-            
-
-
-        }
-        else if (vb.Equals(yellowBehaviour)) //yellowVB.GetComponent<VirtualButtonBehaviour>()
-        {
-
-            //yellowCube.SetActive(false);
-            myAudioSource.clip = aClips[2];
-            myAudioSource.Play();
-            /*yellowCube.GetComponent<Renderer>().material.SetColor("_Color", Color.gray);*/
-            //SoundAndColor("yellow");
-            //yellowColor.a = 0.5f;
-            yellowRenderer.material.color = yellowColorTrans;
-
-
-        }
-        else if(vb.Equals(blueBehaviour))//blueVB.GetComponent<VirtualButtonBehaviour>()
-        {
-            //SoundAndColor("blue");
-            //blueCube.SetActive(false);
-            myAudioSource.clip = aClips[3];
-            myAudioSource.Play();
-            blueRenderer.material.color = blueColorTrans;
-
-            /*  blueCube.GetComponent<Renderer>().material.SetColor("_Color", Color.gray);*/
-            //blueColor.a = 0.5f;
-
-
-        }
-        else if (vb.Equals(greenBehaviour))//if (vb.Equals(greenVB.GetComponent<VirtualButtonBehaviour>()))
-        {
-            //SoundAndColor("green");
-            //greenCube.SetActive(false);
-            myAudioSource.clip = aClips[1];
-            myAudioSource.Play();
-            greenRenderer.material.color = greenColorTrans;
-
-            //greenCube.GetComponent<Renderer>().material.SetColor("_Color", Color.gray);
-            //greenColor.a = 0.5f;
-
-        
-
-        }
-
-    }
-
-    public void OnButtonReleased(VirtualButtonBehaviour vb)
-    {
-
-        //redRenderer.material.color = redColor;
-
-        //yellowRenderer.material.color = yellowColor;
-
-        /*redCube.SetActive(true);
-        greenCube.SetActive(true);
-        blueCube.SetActive(true);
-        yellowCube.SetActive(true);
-        */
-        //redCube.GetComponent<Renderer>().material.color = Color(1, 208.0f/255.0f, 20.0f / 255.0f, 20.0f / 255.0f);
-        
-        if (vb.Equals(redBehaviour))
-        {
-            //redCube.GetComponent<Renderer>().material.SetColor("_Color", Color.red);
-            redRenderer.material.color = redColor;
-        }
-        else if (vb.Equals(yellowBehaviour))
-        {
-            //yellowCube.GetComponent<Renderer>().material.SetColor("_Color", Color.yellow);
-            yellowRenderer.material.color = yellowColor;
-
-        }
-        else if (vb.Equals(blueBehaviour))//blueVB.GetComponent<VirtualButtonBehaviour>()
-        {
-            blueRenderer.material.color = blueColor;
-        }
-        else if (vb.Equals(greenBehaviour))
-        {
-            greenRenderer.material.color = greenColor;
-        }
-
-
-
-
-
 
     }
 
@@ -274,39 +149,60 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
                 {
                     case "StartButton":
                         StartGame();
-                        //StartCoroutine(StartSimon());
                         break;
 
                     case "StartText":
                         StartGame();
-                        //StartCoroutine(StartSimon());
-                        break;
-
-
-                    case "GreenCube":
-                        PlayerMove(0);
-                        myAudioSource.clip = aClips[1];
-                        myAudioSource.Play();
                         break;
 
                     case "RedCube":
-                        PlayerMove(1);
+
                         myAudioSource.clip = aClips[0];
                         myAudioSource.Play();
+
+                        if (gameStarted)
+                        {
+                            PlayerMove(0);
+                        }
+
+
+                        break;
+
+                    case "GreenCube":
+
+                        myAudioSource.clip = aClips[1];
+                        myAudioSource.Play();
+
+                        if (gameStarted)
+                        {
+                            PlayerMove(1);
+                        }
 
                         break;
 
                     case "YellowCube":
-                        PlayerMove(2);
 
                         myAudioSource.clip = aClips[2];
                         myAudioSource.Play();
+
+                        if (gameStarted)
+                        {
+                            PlayerMove(2);
+                        }
+
+
                         break;
                     case "BlueCube":
-                        PlayerMove(3);
 
                         myAudioSource.clip = aClips[3];
                         myAudioSource.Play();
+
+                        if (gameStarted)
+                        {
+                            PlayerMove(3);
+                        }
+
+
                         break;
                     default:
                         break;
@@ -318,265 +214,262 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
 
     private void StartGame()
     {
+
         textButtonStart.SetActive(false);
         buttonStart.SetActive(false);
-        //SimonTurn();
-        //StartCoroutine(STurn());
-        //deffug();
-        StartCoroutine(PlayList());
-
-    }
-
-    private void Deffug() // funciona fatal
-    {
-        while (true)
-        {
-            while (playSoundTimer > 0.0f)
-            {
-                playSoundTimer -= Time.deltaTime;
-            }
-            playSoundTimer = timeBetweenSounds;
-            myAudioSource.clip = aClips[0];
-            myAudioSource.Play();
-        }
-    }
-    IEnumerator STurn()
-    {
         touchActivated = false;
-        yield return new WaitForSeconds(2);
+        gameStarted = true;
 
-        System.Random rnd = new System.Random();
-        int random = rnd.Next(0, 3);
-        simonList.Add(random);
-
-        StartCoroutine(PlayList());
-
+        StartCoroutine(coroutine);
     }
 
-    IEnumerator PlayList()
+    IEnumerator Simon()
     {
 
-        /*for (int tocados = 0; tocados < simonQ.Count; tocados++)
+        while (!gameOver)
         {
-            myAudioSource.clip = aClips[simonQ.];
-            myAudioSource.Play();
+            //Torn de Simon
+            System.Random rnd = new System.Random();
+            int random = rnd.Next(0, 4); //el min value es inclusiu i el max value es exclusiu
+            //simonList.Add(random);
+            simonList = simonList.Concat(new int[] { random }).ToArray();
+            //simonTextDebugg.text = "Simon: " + random;
 
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(timeBetweenRounds);
 
-            print("Ha sonado \n");
-        }*/
-        //StartCoroutine(STurn());
-
-
-        /*
-        for (int tocados = 0; tocados < simonList.Count; tocados++)
-        {
-            myAudioSource.clip = aClips[simonList.];
-            myAudioSource.Play();
-
-            yield return new WaitForSeconds(1);
-
-            print("Ha sonado \n");
-        }*/
-
-        foreach (int sound in simonList)
-        {
-            myAudioSource.clip = aClips[sound];
-            myAudioSource.Play();
-
-            yield return new WaitForSeconds(1);
-        }
-        //StartCoroutine(STurn());
-        
-    }
-
-    private void SimonTurn()
-    {
-        while (simonWaitTimer > 0)
-        {
-            simonWaitTimer -= Time.deltaTime;
-        }
-        simonWaitTimer = SimonTimeBetween;
-
-        touchActivated = false;
-        System.Random rnd = new System.Random();
-        int random = rnd.Next(0,3);
-        //int random = UnityEngine.Random.Range(0, 3);
-
-        simonList.Add(random);
-
-        //reproducimos la simon list y al finalizar devolvemos el control al jugador
-
-        PlaySimonList();
-
-        //touchActivated = true;
-        /*
-
-        //per al debug
-        print("\n");
-        print("Jugada: "+ simonList.Count +"\n");
-        foreach (int color in simonList)
-        {
-            Console.WriteLine(color);
-        }
-        */
-        SimonTurn();
-        //PlayerTurn();
-    }
-
-    private void PlayerTurn()
-    {
-        while (timer > 0.0f)
-        {
-            timer -= Time.deltaTime;
-        }
-        timer = timeBetween;
-        print("\nPlayer ha jugado\n");
-        SimonTurn();
-
-    }
-
-    public void PlaySimonList()
-    {
-        
-        for (int tocados = 0; tocados < simonList.Count; tocados++) {
-            while (playSoundTimer > 0.0f)
+            //Toquem totes les notes de lallista
+            foreach (int index in simonList)
             {
-                playSoundTimer -= Time.deltaTime;
-            }
-            playSoundTimer = timeBetweenSounds;
+                //myAudioSource.clip = aClips[sound];
+                //myAudioSource.Play();
+                PressButton(index);
+                PlaySound(index);
 
-            myAudioSource.clip = aClips[0];
-            myAudioSource.Play();
-            
-            print("Ha sonado \n");
+                yield return new WaitForSeconds(delayBetweenBPressed);
+
+                ReleaseButton(index);
+
+                yield return new WaitForSeconds(delayBetweenSimonNotes);
+            }
+
+            //Torn del jugardor
+            touchActivated = true;
+            yield return new WaitUntil(() => simonList.Length == playerList.Length);
+            //yield return new WaitUntil(() => simonList.Count == playerList.Count);
+
+            round++;
+            playerMovesCounter = 0;
+            touchActivated = false;
+            //playerList.Clear();
+            playerList = new int[] { };
+
         }
-        //yield return new WaitForSeconds(1);
+
+
     }
+
 
     private void PlayerMove(int move)
     {
+        //playerList.Add(move);
+        playerList = playerList.Concat(new int[] { move }).ToArray();
+        //playerTextDebugg.text = "Simon: " + move;
+        playerMovesCounter++;
+        simonTextDebugg.text = "SimonQuetoca: " + simonList[playerMovesCounter - 1];
+        playerTextDebugg.text = "PlayerHatocado: " + playerList[playerMovesCounter - 1];
 
-        playerList.Add(move);
-
-        if (simonList.Count == playerList.Count )
+        if ( ! ( simonList[playerMovesCounter - 1].Equals( playerList[playerMovesCounter - 1] ) )) //analitzar en debug text
         {
-            int contador = 0;
-
-            while (contador< simonList.Count)
-            {
-                if (simonList.IndexOf(contador) != playerList.IndexOf(contador))
-                {
-                    GameOver();
-                    return;
-                }
-            }
-            playerList.Clear();
-            SimonTurn();
-
-            return;
+            textDebugg.text= "MAL";
+            GameOver();
         }
+        textDebugg.text = "BE";
+        //textDebugg.text = " " + (int)simonList[playerMovesCounter - 1];
+        //textDebugg.text = simonList.;
+        //HAY QUE OBTENER EL VALOR DE SIMON LIST CON UN ITERADOR?? y el de player mirar su last??
 
     }
 
     private void GameOver()
     {
         print("GameOver");
+        ResetGame();
+        endgameCanvas.SetActive(true);
+       
+        //SceneManager.LoadScene(2);
     }
-    
-    IEnumerator StartSimon() //NO HO ESTIC UTILITZANT
+
+    private void ResetGame()
     {
-        textButtonStart.SetActive(false);
-        buttonStart.SetActive(false);
+        StopCoroutine(coroutine);
+        textButtonStart.SetActive(true);
+        buttonStart.SetActive(true);
+        playerList = new int[] { };
+        simonList = new int[] { };
 
-
-        while (!gameOver)
-        {
-            contador++;
-            //no acaba de ser molt random aço :(
-            //por ser que el 0 no estiga en aClips?
-            simonList.Add(UnityEngine.Random.Range(0,3)); //tinc que dirli unity engine que sino se lia el cerdo
-            //print(Time.time);
-            yield return new WaitForSeconds(1);
-            //PlaySimonList();
-
-            for (int i = 0; i < simonList.Count; i++)
-            {
-                myAudioSource.clip = aClips[i];
-                myAudioSource.Play();
-                yield return new WaitForSeconds(1);
-            }
-            //print(Time.time);
-            //myAudioSource.clip = aClips[3];
-            //myAudioSource.Play();
-            //blueRenderer.material.color = blueColorTrans;
-            yield return new WaitForSeconds(1); //mirar de llevar pauses
-            //blueRenderer.material.color = blueColor;
-            //TURNO DEL JUGADOR (llamar otra coroutine o funcion i hacer otro yield?)
-            /*if (contador == 3)
-            {
-                gameOver = true;
-                textButtonStart.SetActive(true);
-                buttonStart.SetActive(true);
-
-            }*/
-        }
+        touchActivated = true;
+        gameStarted = false;
         gameOver = false;
-
-
-        //yield return null;
+        round = 0;
+        playerMovesCounter = 0;
     }
-    
 
 
-    //yield WaitForSeconds(0.25);
-
-
-    /*
-    IEnumerator SoundAndColor(string color)
+    public void PressButton(int index)
     {
-        switch (color)
-        {
-            case "red":
-                myAudioSource.clip = aClips[0];
-                myAudioSource.Play();
-                redCube.GetComponent<Renderer>().material.SetColor("_Color", Color.gray);
+        switch(index){
+
+            case 0://red
+
+                redRenderer.material.color = redColorTrans;
                 break;
-            case "yellow":
-                myAudioSource.clip = aClips[2];
-                myAudioSource.Play();
-                yellowCube.GetComponent<Renderer>().material.SetColor("_Color", Color.gray);
+
+            case 1://green
+
+                greenRenderer.material.color = greenColorTrans;
                 break;
-            case "blue":
-                myAudioSource.clip = aClips[3];
-                myAudioSource.Play();
-                blueCube.GetComponent<Renderer>().material.SetColor("_Color", Color.gray);
+
+            case 2://yellow
+
+                yellowRenderer.material.color = yellowColorTrans;
                 break;
-            case "green":
-                myAudioSource.clip = aClips[1];
-                myAudioSource.Play();
-                greenCube.GetComponent<Renderer>().material.SetColor("_Color", Color.gray);
+
+            case 3://blue
+
+                blueRenderer.material.color = blueColorTrans;
                 break;
+
             default:
                 break;
         }
-
-        yield return null;
     }
-    */
 
-    /*
-    void Awake()
+    public void ReleaseButton(int index)
     {
-        StartCoroutine(Do());
+        switch (index)
+        {
+
+            case 0://red
+
+                redRenderer.material.color = redColor;
+                break;
+
+            case 1://green
+
+                greenRenderer.material.color = greenColor;
+                break;
+
+            case 2://yellow
+
+                yellowRenderer.material.color = yellowColor;
+                break;
+
+            case 3://blue
+
+                blueRenderer.material.color = blueColor;
+                break;
+
+            default:
+                break;
+        }
     }
 
-    IEnumerator Do()
+    public void PlaySound(int index)
     {
-        Debug.Log("This will show instantly");
-        yield return new WaitForSeconds(2);
-        Debug.Log("This will print after 2 seconds");
-    }
-    */
+        switch (index)
+        {
 
+            case 0://red
+                myAudioSource.clip = aClips[0];
+                myAudioSource.Play();
+                break;
+
+            case 1://green
+
+                myAudioSource.clip = aClips[1];
+                myAudioSource.Play();
+                break;
+
+            case 2://yellow
+
+                myAudioSource.clip = aClips[2];
+                myAudioSource.Play();
+                break;
+
+            case 3://blue
+
+                myAudioSource.clip = aClips[3];
+                myAudioSource.Play();
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    public void OnButtonPressed(VirtualButtonBehaviour vb)
+    {
+        
+        /*
+        if (vb.Equals(redBehaviour))
+        {
+
+            myAudioSource.clip = aClips[0];
+            myAudioSource.Play();
+            redRenderer.material.color = redColorTrans;
+
+
+
+        }
+        else if (vb.Equals(yellowBehaviour)) 
+        {
+
+            myAudioSource.clip = aClips[2];
+            myAudioSource.Play();
+            yellowRenderer.material.color = yellowColorTrans;
+
+
+        }
+        else if (vb.Equals(blueBehaviour))
+        {
+
+            myAudioSource.clip = aClips[3];
+            myAudioSource.Play();
+            blueRenderer.material.color = blueColorTrans;
+
+        }
+        else if (vb.Equals(greenBehaviour))
+        {
+
+            myAudioSource.clip = aClips[1];
+            myAudioSource.Play();
+            greenRenderer.material.color = greenColorTrans;
+
+        }
+        */
+    }
+
+    public void OnButtonReleased(VirtualButtonBehaviour vb)
+    {
+        /*
+        if (vb.Equals(redBehaviour))
+        {
+            redRenderer.material.color = redColor;
+        }
+        else if (vb.Equals(yellowBehaviour))
+        {
+            yellowRenderer.material.color = yellowColor;
+
+        }
+        else if (vb.Equals(blueBehaviour))
+        {
+            blueRenderer.material.color = blueColor;
+        }
+        else if (vb.Equals(greenBehaviour))
+        {
+            greenRenderer.material.color = greenColor;
+        }
+        */
+    }
+   
 }

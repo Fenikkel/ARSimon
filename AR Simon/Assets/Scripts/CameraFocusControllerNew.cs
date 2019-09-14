@@ -6,7 +6,7 @@ public class CameraFocusControllerNew : MonoBehaviour
 {
 
     private bool mVuforiaStarted = false;
-    private bool mFlashEnabled = false;
+    //private bool mFlashEnabled = false;
 
     void Start()
     {
