@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Vuforia;
 using UnityEngine.SceneManagement;
 using System.Linq;
@@ -12,6 +13,8 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
     public TextMesh playerTextDebugg;
     public TextMesh simonTextDebugg;
     public TextMesh textDebugg;
+
+    public Text roundsText;
 
     public GameObject endgameCanvas;
 
@@ -34,6 +37,8 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
     private GameObject redVB, blueVB, greenVB, yellowVB;
     private GameObject redCube, yellowCube, greenCube, blueCube;
     private GameObject textButtonStart, buttonStart;
+
+    public Animator redAni, blueAni, yellowAni, greenAni;
 
     private VirtualButtonBehaviour redBehaviour;
     private VirtualButtonBehaviour yellowBehaviour;
@@ -68,8 +73,7 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
     public float delayBetweenBPressed = 0.5f;
 
     public float timeBetweenRounds = 1.5f;
-
-    //public float timeBetween = 1.0f;
+    public float timeBetweenWinSound = 1.0f;
 
 
     void Start () {
@@ -149,6 +153,7 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
     }
 
     void Update() {
+
         if (touchActivated && Input.touchCount > 0 && Input.touches[0].phase == TouchPhase.Began)
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
@@ -170,23 +175,45 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
 
                         
                         PlaySound(0);
-                        PressButton(0);
-                        new WaitForSeconds(delayBetweenBPressed);
-                        ReleaseButton(0);
+                        StartCoroutine(WaitBut(0));
+
                         if (gameStarted)
                         {
                             PlayerMove(0);
                         }
 
+                        break;
+
+                    case "sheep":
+
+
+                        PlaySound(0);
+                        StartCoroutine(WaitBut(0));
+
+                        if (gameStarted)
+                        {
+                            PlayerMove(0);
+                        }
 
                         break;
 
                     case "GreenCube":
 
                         PlaySound(1);
-                        PressButton(1);
-                        new WaitForSeconds(delayBetweenBPressed);
-                        ReleaseButton(1);
+                        StartCoroutine(WaitBut(1));
+
+                        if (gameStarted)
+                        {
+                            PlayerMove(1);
+                        }
+
+                        break;
+
+                    case "Cat":
+
+                        PlaySound(1);
+                        StartCoroutine(WaitBut(1));
+
                         if (gameStarted)
                         {
                             PlayerMove(1);
@@ -197,27 +224,43 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
                     case "YellowCube":
 
                         PlaySound(2);
-                        PressButton(2);
-                        new WaitForSeconds(delayBetweenBPressed);
-                        ReleaseButton(2);
+                        StartCoroutine(WaitBut(2));
+
                         if (gameStarted)
                         {
                             PlayerMove(2);
                         }
 
+                        break;
+                    case "LOVEDUCK":
+
+                        PlaySound(2);
+                        StartCoroutine(WaitBut(2));
+
+                        if (gameStarted)
+                        {
+                            PlayerMove(2);
+                        }
 
                         break;
                     case "BlueCube":
 
                         PlaySound(3);
-                        PressButton(3);
-                        new WaitForSeconds(delayBetweenBPressed);
-                        ReleaseButton(3);
+                        StartCoroutine(WaitBut(3));
                         if (gameStarted)
                         {
                             PlayerMove(3);
                         }
 
+                        break;
+                    case "penguin":
+
+                        PlaySound(3);
+                        StartCoroutine(WaitBut(3));
+                        if (gameStarted)
+                        {
+                            PlayerMove(3);
+                        }
 
                         break;
                     default:
@@ -239,6 +282,14 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
         StartCoroutine(coroutine);
     }
 
+    IEnumerator WaitBut(int index)
+    {
+        PressButton(index);
+        yield return new WaitForSeconds(delayBetweenBPressed);
+        ReleaseButton(index);
+
+    }
+
     IEnumerator Simon()
     {
 
@@ -256,8 +307,6 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
             //Toquem totes les notes de lallista
             foreach (int index in simonList)
             {
-                //myAudioSource.clip = aClips[sound];
-                //myAudioSource.Play();
                 PressButton(index);
                 PlaySound(index);
 
@@ -271,7 +320,17 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
             //Torn del jugardor
             touchActivated = true;
             yield return new WaitUntil(() => simonList.Length == playerList.Length);
-            //yield return new WaitUntil(() => simonList.Count == playerList.Count);
+
+            yield return new WaitForSeconds(timeBetweenWinSound);
+
+            PlaySound(4);
+
+            if (!ApplicationModel.traditional) //si no esta en modo tradicional
+            {
+                AllTogether();
+            }
+     
+
 
             round++;
             playerMovesCounter = 0;
@@ -284,6 +343,13 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
 
     }
 
+    private void AllTogether()
+    {
+        redAni.Play("jump");
+        yellowAni.Play("jump");
+        greenAni.Play("jump");
+        blueAni.Play("jump");
+    }
 
     private void PlayerMove(int move)
     {
@@ -297,6 +363,7 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
         if ( ! ( simonList[playerMovesCounter - 1].Equals( playerList[playerMovesCounter - 1] ) )) //analitzar en debug text
         {
             textDebugg.text= "MAL";
+            roundsText.text = "Scored: " + (round * 10);
             GameOver();
         }
         textDebugg.text = "BE";
@@ -309,6 +376,7 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
     private void GameOver()
     {
         print("GameOver");
+        PlaySound(5);
         ResetGame();
         endgameCanvas.SetActive(true);
        
@@ -331,27 +399,42 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
     }
 
 
-    public void PressButton(int index)
+    private void PressButton(int index)
     {
         switch(index){
 
             case 0://red
+                if (!ApplicationModel.traditional) //si no esta en modo tradicional
+                {
+                    redAni.Play("jump");
+                }
 
                 redRenderer.material.color = redColorTrans;
                 break;
 
             case 1://green
-
+                if (!ApplicationModel.traditional)
+                {
+                    //greenAni.SetBool("attack", true);
+                    greenAni.Play("jump");
+                    //greenAni.Play("mole_attack");
+                }
                 greenRenderer.material.color = greenColorTrans;
                 break;
 
             case 2://yellow
-
+                if (!ApplicationModel.traditional)
+                {
+                    yellowAni.Play("jump");
+                }
                 yellowRenderer.material.color = yellowColorTrans;
                 break;
 
             case 3://blue
-
+                if (!ApplicationModel.traditional)
+                {
+                    blueAni.Play("jump");
+                }
                 blueRenderer.material.color = blueColorTrans;
                 break;
 
@@ -360,7 +443,7 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
         }
     }
 
-    public void ReleaseButton(int index)
+    private void ReleaseButton(int index)
     {
         switch (index)
         {
@@ -390,37 +473,19 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
         }
     }
 
-    public void PlaySound(int index)
+    private void PlaySound(int index)
     {
-        switch (index)
+        //red: 0, green: 1, yellow: 2, blue: 3, win: 4, lose: 5
+        if (index >= aClips.Length)
         {
-
-            case 0://red
-                myAudioSource.clip = aClips[0];
-                myAudioSource.Play();
-                break;
-
-            case 1://green
-
-                myAudioSource.clip = aClips[1];
-                myAudioSource.Play();
-                break;
-
-            case 2://yellow
-
-                myAudioSource.clip = aClips[2];
-                myAudioSource.Play();
-                break;
-
-            case 3://blue
-
-                myAudioSource.clip = aClips[3];
-                myAudioSource.Play();
-                break;
-
-            default:
-                break;
+            print("index: " + index + " -> out of aClips range");
         }
+        else
+        {
+            myAudioSource.clip = aClips[index];
+            myAudioSource.Play();
+        }
+
     }
 
     public void OnButtonPressed(VirtualButtonBehaviour vb)
@@ -497,5 +562,13 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
             ReleaseButton(3);
         }
     }
-   
+
+    public void BackToMenu()
+    {
+        ApplicationModel.twoPlayers = false;
+        ApplicationModel.traditional = false;
+        SceneManager.LoadScene(0);
+
+    }
+
 }
