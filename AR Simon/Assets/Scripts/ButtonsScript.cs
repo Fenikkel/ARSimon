@@ -60,6 +60,16 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
     private Renderer blueRenderer;
     private Renderer greenRenderer;
 
+    public GameObject greenAvatar;
+    public GameObject blueAvatar;
+    public GameObject yellowAvatar;
+    public GameObject redAvatar;
+
+    public GameObject greenImage;
+    public GameObject blueImage;
+    public GameObject yellowImage;
+    public GameObject redImage;
+
 
 
     public AudioClip[] aClips;
@@ -150,6 +160,20 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
 
         myAudioSource = GetComponent<AudioSource>();
 
+        if (ApplicationModel.traditional)
+        {
+            yellowAvatar.SetActive(false);
+            greenAvatar.SetActive(false);
+            blueAvatar.SetActive(false);
+            yellowAvatar.SetActive(false);
+            redAvatar.SetActive(false);
+
+            greenImage.SetActive(false);
+            blueImage.SetActive(false);
+            yellowImage.SetActive(false);
+            redImage.SetActive(false);
+        }
+
     }
 
     void Update() {
@@ -173,13 +197,23 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
 
                     case "RedCube":
 
-                        
-                        PlaySound(0);
-                        StartCoroutine(WaitBut(0));
+
 
                         if (gameStarted)
                         {
-                            PlayerMove(0);
+
+                            if (ApplicationModel.traditional)
+                            {
+                                PlayerMove(0);
+                                PlaySound(0);
+                            }
+                            else
+                            {
+                                PlayerMove(6);
+                                PlaySound(6);
+                            }
+                            StartCoroutine(WaitBut(0));
+
                         }
 
                         break;
@@ -187,79 +221,114 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
                     case "sheep":
 
 
-                        PlaySound(0);
-                        StartCoroutine(WaitBut(0));
-
                         if (gameStarted)
                         {
-                            PlayerMove(0);
+                            PlaySound(6);
+                            StartCoroutine(WaitBut(0));
+                            PlayerMove(6);
                         }
 
                         break;
 
                     case "GreenCube":
 
-                        PlaySound(1);
-                        StartCoroutine(WaitBut(1));
+
 
                         if (gameStarted)
                         {
-                            PlayerMove(1);
+                            if (ApplicationModel.traditional)
+                            {
+                                PlaySound(1);
+                                PlayerMove(1);
+
+                            }
+                            else
+                            {
+                                PlaySound(7);
+                                PlayerMove(7);
+
+                            }
+                            StartCoroutine(WaitBut(1));
                         }
 
                         break;
 
                     case "Cat":
 
-                        PlaySound(1);
-                        StartCoroutine(WaitBut(1));
+
 
                         if (gameStarted)
                         {
-                            PlayerMove(1);
+                            PlayerMove(7);
+                            PlaySound(7);
+                            StartCoroutine(WaitBut(1));
                         }
 
                         break;
 
                     case "YellowCube":
 
-                        PlaySound(2);
-                        StartCoroutine(WaitBut(2));
+
 
                         if (gameStarted)
                         {
-                            PlayerMove(2);
+                            if (ApplicationModel.traditional)
+                            {
+                                PlaySound(2);
+                                PlayerMove(2);
+
+                            }
+                            else
+                            {
+                                PlaySound(8);
+                                PlayerMove(8);
+
+                            }
+                            StartCoroutine(WaitBut(2));
                         }
 
                         break;
                     case "LOVEDUCK":
 
-                        PlaySound(2);
-                        StartCoroutine(WaitBut(2));
+
 
                         if (gameStarted)
                         {
-                            PlayerMove(2);
+                            PlayerMove(8);
+                            PlaySound(8);
+                            StartCoroutine(WaitBut(2));
                         }
 
                         break;
                     case "BlueCube":
 
-                        PlaySound(3);
-                        StartCoroutine(WaitBut(3));
+
                         if (gameStarted)
                         {
-                            PlayerMove(3);
+                            if (ApplicationModel.traditional)
+                            {
+                                PlaySound(3);
+                                PlayerMove(3);
+
+                            }
+                            else
+                            {
+                                PlaySound(9);
+                                PlayerMove(9);
+
+                            }
+                            StartCoroutine(WaitBut(3));
                         }
 
                         break;
                     case "penguin":
 
-                        PlaySound(3);
-                        StartCoroutine(WaitBut(3));
+
                         if (gameStarted)
                         {
-                            PlayerMove(3);
+                            PlayerMove(9);
+                            PlaySound(9);
+                            StartCoroutine(WaitBut(3));
                         }
 
                         break;
@@ -297,7 +366,19 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
         {
             //Torn de Simon
             System.Random rnd = new System.Random();
-            int random = rnd.Next(0, 4); //el min value es inclusiu i el max value es exclusiu
+            int random = 5;
+
+            if (ApplicationModel.traditional)
+            {
+
+                random = rnd.Next(0, 4); //el min value es inclusiu i el max value es exclusiu
+
+            }
+            else
+            {
+                random = rnd.Next(6, 10); //el min value es inclusiu i el max value es exclusiu
+
+            }
             //simonList.Add(random);
             simonList = simonList.Concat(new int[] { random }).ToArray();
             //simonTextDebugg.text = "Simon: " + random;
@@ -307,12 +388,29 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
             //Toquem totes les notes de lallista
             foreach (int index in simonList)
             {
-                PressButton(index);
+
                 PlaySound(index);
+
+                if (ApplicationModel.traditional)
+                {
+                    PressButton(index);
+                }
+                else
+                {
+                    PressButton(index-6);
+                }
+
 
                 yield return new WaitForSeconds(delayBetweenBPressed);
 
-                ReleaseButton(index);
+                if (ApplicationModel.traditional)
+                {
+                    ReleaseButton(index);
+                }
+                else
+                {
+                    ReleaseButton(index - 6);
+                }
 
                 yield return new WaitForSeconds(delayBetweenSimonNotes);
             }
@@ -321,14 +419,20 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
             touchActivated = true;
             yield return new WaitUntil(() => simonList.Length == playerList.Length);
 
-            yield return new WaitForSeconds(timeBetweenWinSound);
+            
 
-            PlaySound(4);
-
-            if (!ApplicationModel.traditional) //si no esta en modo tradicional
+            if (playerMovesCounter != 0)
             {
-                AllTogether();
+                yield return new WaitForSeconds(timeBetweenWinSound); //CUIDAU!
+                PlaySound(4);
+
+                if (!ApplicationModel.traditional) //si no esta en modo tradicional
+                {
+                    AllTogether();
+                }
             }
+
+
      
 
 
@@ -377,7 +481,9 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
     {
         print("GameOver");
         PlaySound(5);
+        //StopAllCoroutines();
         ResetGame();
+
         endgameCanvas.SetActive(true);
        
         //SceneManager.LoadScene(2);
@@ -390,7 +496,18 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
         buttonStart.SetActive(true);
         playerList = new int[] { };
         simonList = new int[] { };
+        /*
+        yellowAvatar.SetActive(true);
+        greenAvatar.SetActive(true);
+        blueAvatar.SetActive(true);
+        yellowAvatar.SetActive(true);
+        redAvatar.SetActive(true);
 
+        greenImage.SetActive(true);
+        blueImage.SetActive(true);
+        yellowImage.SetActive(true);
+        redImage.SetActive(true);
+        */
         touchActivated = true;
         gameStarted = false;
         gameOver = false;
@@ -496,32 +613,66 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
         {
 
             PressButton(0);
-            PlaySound(0);
+
             if (gameStarted)
             {
-                PlayerMove(0);
+
+                if (ApplicationModel.traditional)
+                {
+                    PlayerMove(0);
+                    PlaySound(0);
+                }
+                else
+                {
+                    PlayerMove(6);
+                    PlaySound(6);
+                }
+
             }
+
 
         }
         else if (vb.Equals(greenBehaviour))
         {
 
             PressButton(1);
-            PlaySound(1);
             if (gameStarted)
             {
-                PlayerMove(1);
+
+                if (ApplicationModel.traditional)
+                {
+                    PlayerMove(1);
+                    PlaySound(1);
+                }
+                else
+                {
+                    PlayerMove(7);
+                    PlaySound(7);
+                }
+
             }
+
+
 
         }
         else if (vb.Equals(yellowBehaviour)) 
         {
 
             PressButton(2);
-            PlaySound(2);
             if (gameStarted)
             {
-                PlayerMove(2);
+
+                if (ApplicationModel.traditional)
+                {
+                    PlayerMove(2);
+                    PlaySound(2);
+                }
+                else
+                {
+                    PlayerMove(8);
+                    PlaySound(8);
+                }
+
             }
 
 
@@ -530,10 +681,20 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
         {
 
             PressButton(3);
-            PlaySound(3);
             if (gameStarted)
             {
-                PlayerMove(3);
+
+                if (ApplicationModel.traditional)
+                {
+                    PlayerMove(3);
+                    PlaySound(3);
+                }
+                else
+                {
+                    PlayerMove(9);
+                    PlaySound(9);
+                }
+
             }
 
         }
