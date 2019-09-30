@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Menu.unity
     guid: 4dd068adcf747e84ab7305cdb2ae99cd
   - enabled: 1
+    path: Assets/Scenes/ARick Astley.unity
+    guid: efd810b755763ca4aa4e7a51a236062c
+  - enabled: 0
     path: Assets/Scenes/ARAnimals.unity
     guid: 7eeddd20a8626ff4daff0efd77481330
   - enabled: 0

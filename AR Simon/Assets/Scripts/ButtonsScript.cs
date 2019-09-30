@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 using System.Linq;
 
 
-public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
+public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler, ITrackableEventHandler
 {
     public TextMesh playerTextDebugg;
     public TextMesh simonTextDebugg;
@@ -34,9 +34,9 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
     private int playerMovesCounter = 0;
 
 
-    private GameObject redVB, blueVB, greenVB, yellowVB;
-    private GameObject redCube, yellowCube, greenCube, blueCube;
-    private GameObject textButtonStart, buttonStart;
+    public GameObject redVB, blueVB, greenVB, yellowVB;
+    public GameObject redCube, yellowCube, greenCube, blueCube;
+    public GameObject textButtonStart, buttonStart;
 
     public Animator redAni, blueAni, yellowAni, greenAni;
 
@@ -101,12 +101,12 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
         gameOver = false;
         round = 0;
         playerMovesCounter = 0;
-
+/*
         redVB = GameObject.Find("RedButton");
         yellowVB = GameObject.Find("YellowButton");
         blueVB = GameObject.Find("BleuButton"); //recorda que se diu "Bleu"
         greenVB = GameObject.Find("GreenButton");
-
+^*/
         if (!ApplicationModel.twoPlayers)
         {
             redVB.SetActive(false);
@@ -114,7 +114,7 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
             blueVB.SetActive(false);
             greenVB.SetActive(false);
         }
-
+/*
         redCube = GameObject.Find("RedCube");
         yellowCube = GameObject.Find("YellowCube");
         blueCube = GameObject.Find("BlueCube");
@@ -124,7 +124,7 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
 
         textButtonStart = GameObject.Find("StartText");
         buttonStart = GameObject.Find("StartButton");
-
+*/
         redBehaviour = redVB.GetComponent<VirtualButtonBehaviour>();
         yellowBehaviour = yellowVB.GetComponent<VirtualButtonBehaviour>();
         blueBehaviour = blueVB.GetComponent<VirtualButtonBehaviour>();
@@ -731,5 +731,18 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler
         SceneManager.LoadScene(0);
 
     }
+
+    public void OnTrackableStateChanged(TrackableBehaviour.Status previousStatus, TrackableBehaviour.Status newStatus) //https://forum.unity.com/threads/vuforia-ontrackingfound-with-object-reference-not-set-to-an-instance-of-an-object-c.468560/
+    {
+        
+        if (newStatus == TrackableBehaviour.Status.DETECTED || previousStatus == TrackableBehaviour.Status.DETECTED)
+        {
+            greenAvatar.transform.position = Vector3.zero;
+            blueAvatar.SetActive(false);
+        }
+
+        return;
+    }
+
 
 }
