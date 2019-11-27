@@ -22,6 +22,7 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler  //, ITra
 
     private bool touchActivated = true;
     private bool gameStarted = false;
+    public bool alreadyInitialized = false;
 
     //List<int> simonList = new List<int>();
     //List<int> playerList = new List<int>();
@@ -88,7 +89,7 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler  //, ITra
 
     void Start () {
 
-        coroutine = Simon();
+        //coroutine = Simon();
 
         //playerList.Clear();
         //simonList.Clear();
@@ -174,6 +175,15 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler  //, ITra
             redImage.SetActive(false);
         }
 
+    }
+    public void Initialize()
+    {
+        if (!alreadyInitialized)
+        {
+            alreadyInitialized = true;
+            coroutine = Simon();
+
+        }
     }
 
     void Update() {

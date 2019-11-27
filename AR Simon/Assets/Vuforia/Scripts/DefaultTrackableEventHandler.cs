@@ -81,6 +81,10 @@ public class DefaultTrackableEventHandler : MonoBehaviour, ITrackableEventHandle
         var rendererComponents = GetComponentsInChildren<Renderer>(true);
         var colliderComponents = GetComponentsInChildren<Collider>(true);
         var canvasComponents = GetComponentsInChildren<Canvas>(true);
+        ButtonsScript script = GetComponent<ButtonsScript>();
+
+
+        PlaySoundOnStateChange simon = GetComponentInChildren<PlaySoundOnStateChange>();
 
         // Enable rendering:
         foreach (var component in rendererComponents)
@@ -93,6 +97,12 @@ public class DefaultTrackableEventHandler : MonoBehaviour, ITrackableEventHandle
         // Enable canvas':
         foreach (var component in canvasComponents)
             component.enabled = true;
+
+        script.Initialize();
+        simon.Initialize();
+        simon.PlayOnAppear();
+
+
     }
 
 
@@ -101,6 +111,7 @@ public class DefaultTrackableEventHandler : MonoBehaviour, ITrackableEventHandle
         var rendererComponents = GetComponentsInChildren<Renderer>(true);
         var colliderComponents = GetComponentsInChildren<Collider>(true);
         var canvasComponents = GetComponentsInChildren<Canvas>(true);
+        PlaySoundOnStateChange simon = GetComponentInChildren<PlaySoundOnStateChange>();
 
         // Disable rendering:
         foreach (var component in rendererComponents)
@@ -113,6 +124,9 @@ public class DefaultTrackableEventHandler : MonoBehaviour, ITrackableEventHandle
         // Disable canvas':
         foreach (var component in canvasComponents)
             component.enabled = false;
+
+        //simon.Initialize(); //don't need to initialize because  we have already enabled the audio source in this case.
+        simon.PlayOnDisappear();
     }
 
     #endregion // PROTECTED_METHODS
