@@ -166,7 +166,7 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler  //, ITra
             yellowAvatar.SetActive(false);
             greenAvatar.SetActive(false);
             blueAvatar.SetActive(false);
-            yellowAvatar.SetActive(false);
+            //yellowAvatar.SetActive(false);
             redAvatar.SetActive(false);
 
             greenImage.SetActive(false);
