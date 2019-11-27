@@ -8,7 +8,7 @@ using UnityEngine.SceneManagement;
 using System.Linq;
 
 
-public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler, ITrackableEventHandler
+public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler  //, ITrackableEventHandler
 {
     public TextMesh playerTextDebugg;
     public TextMesh simonTextDebugg;
@@ -732,17 +732,17 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler, ITrackab
 
     }
 
-    public void OnTrackableStateChanged(TrackableBehaviour.Status previousStatus, TrackableBehaviour.Status newStatus) //https://forum.unity.com/threads/vuforia-ontrackingfound-with-object-reference-not-set-to-an-instance-of-an-object-c.468560/
-    {
+    //public void OnTrackableStateChanged(TrackableBehaviour.Status previousStatus, TrackableBehaviour.Status newStatus) //https://forum.unity.com/threads/vuforia-ontrackingfound-with-object-reference-not-set-to-an-instance-of-an-object-c.468560/
+    //{
         
-        if (newStatus == TrackableBehaviour.Status.DETECTED || previousStatus == TrackableBehaviour.Status.DETECTED)
-        {
-            greenAvatar.transform.position = Vector3.zero;
-            blueAvatar.SetActive(false);
-        }
+    //    if (newStatus == TrackableBehaviour.Status.DETECTED || previousStatus == TrackableBehaviour.Status.DETECTED)
+    //    {
+    //        greenAvatar.transform.position = Vector3.zero;
+    //        blueAvatar.SetActive(false);
+    //    }
 
-        return;
-    }
+    //    return;
+    //}
 
 
 }
