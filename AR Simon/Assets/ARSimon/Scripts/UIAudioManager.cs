@@ -26,7 +26,7 @@ public class UIAudioManager : MonoBehaviour {
     }
     public void PlayToggleOff()
     {
-        source.clip = toggleOnClip;
+        source.clip = toggleOffClip;
         source.Play();
     }
 

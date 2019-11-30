@@ -108,13 +108,7 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler  //, ITra
         blueVB = GameObject.Find("BleuButton"); //recorda que se diu "Bleu"
         greenVB = GameObject.Find("GreenButton");
 ^*/
-        if (!ApplicationModel.twoPlayers)
-        {
-            redVB.SetActive(false);
-            yellowVB.SetActive(false);
-            blueVB.SetActive(false);
-            greenVB.SetActive(false);
-        }
+
 /*
         redCube = GameObject.Find("RedCube");
         yellowCube = GameObject.Find("YellowCube");
@@ -175,6 +169,14 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler  //, ITra
             redImage.SetActive(false);
         }
 
+        if (!ApplicationModel.twoPlayers)
+        {
+            redVB.SetActive(false);
+            yellowVB.SetActive(false);
+            blueVB.SetActive(false);
+            greenVB.SetActive(false);
+        }
+
     }
     public void Initialize()
     {
@@ -199,10 +201,12 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler  //, ITra
                 {
                     case "StartButton":
                         StartGame();
+                        PlaySound(10);
                         break;
 
                     case "StartText":
                         StartGame();
+                        PlaySound(10);
                         break;
 
                     case "RedCube":
@@ -617,97 +621,101 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler  //, ITra
 
     public void OnButtonPressed(VirtualButtonBehaviour vb)
     {
+
+        if (ApplicationModel.twoPlayers && touchActivated)
+        {
+            if (vb.Equals(redBehaviour))
+            {
+
+                PressButton(0);
+
+                if (gameStarted)
+                {
+
+                    if (ApplicationModel.traditional)
+                    {
+                        PlayerMove(0);
+                        PlaySound(0);
+                    }
+                    else
+                    {
+                        PlayerMove(6);
+                        PlaySound(6);
+                    }
+
+                }
+
+
+            }
+            else if (vb.Equals(greenBehaviour))
+            {
+
+                PressButton(1);
+                if (gameStarted)
+                {
+
+                    if (ApplicationModel.traditional)
+                    {
+                        PlayerMove(1);
+                        PlaySound(1);
+                    }
+                    else
+                    {
+                        PlayerMove(7);
+                        PlaySound(7);
+                    }
+
+                }
+
+
+
+            }
+            else if (vb.Equals(yellowBehaviour))
+            {
+
+                PressButton(2);
+                if (gameStarted)
+                {
+
+                    if (ApplicationModel.traditional)
+                    {
+                        PlayerMove(2);
+                        PlaySound(2);
+                    }
+                    else
+                    {
+                        PlayerMove(8);
+                        PlaySound(8);
+                    }
+
+                }
+
+
+            }
+            else if (vb.Equals(blueBehaviour))
+            {
+
+                PressButton(3);
+                if (gameStarted)
+                {
+
+                    if (ApplicationModel.traditional)
+                    {
+                        PlayerMove(3);
+                        PlaySound(3);
+                    }
+                    else
+                    {
+                        PlayerMove(9);
+                        PlaySound(9);
+                    }
+
+                }
+
+            }
+        }
         
-        
-        if (vb.Equals(redBehaviour))
-        {
 
-            PressButton(0);
-
-            if (gameStarted)
-            {
-
-                if (ApplicationModel.traditional)
-                {
-                    PlayerMove(0);
-                    PlaySound(0);
-                }
-                else
-                {
-                    PlayerMove(6);
-                    PlaySound(6);
-                }
-
-            }
-
-
-        }
-        else if (vb.Equals(greenBehaviour))
-        {
-
-            PressButton(1);
-            if (gameStarted)
-            {
-
-                if (ApplicationModel.traditional)
-                {
-                    PlayerMove(1);
-                    PlaySound(1);
-                }
-                else
-                {
-                    PlayerMove(7);
-                    PlaySound(7);
-                }
-
-            }
-
-
-
-        }
-        else if (vb.Equals(yellowBehaviour)) 
-        {
-
-            PressButton(2);
-            if (gameStarted)
-            {
-
-                if (ApplicationModel.traditional)
-                {
-                    PlayerMove(2);
-                    PlaySound(2);
-                }
-                else
-                {
-                    PlayerMove(8);
-                    PlaySound(8);
-                }
-
-            }
-
-
-        }
-        else if (vb.Equals(blueBehaviour))
-        {
-
-            PressButton(3);
-            if (gameStarted)
-            {
-
-                if (ApplicationModel.traditional)
-                {
-                    PlayerMove(3);
-                    PlaySound(3);
-                }
-                else
-                {
-                    PlayerMove(9);
-                    PlaySound(9);
-                }
-
-            }
-
-        }
 
         
     }
@@ -715,23 +723,28 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler  //, ITra
     public void OnButtonReleased(VirtualButtonBehaviour vb)
     {
 
-        if (vb.Equals(redBehaviour))
+        if (ApplicationModel.twoPlayers && touchActivated)
         {
-            ReleaseButton(0);
-        }
-        else if (vb.Equals(greenBehaviour))
-        {
-            ReleaseButton(1);
+            if (vb.Equals(redBehaviour))
+            {
+                ReleaseButton(0);
+            }
+            else if (vb.Equals(greenBehaviour))
+            {
+                ReleaseButton(1);
 
+            }
+            else if (vb.Equals(yellowBehaviour))
+            {
+                ReleaseButton(2);
+            }
+            else if (vb.Equals(blueBehaviour))
+            {
+                ReleaseButton(3);
+            }
         }
-        else if (vb.Equals(yellowBehaviour))
-        {
-            ReleaseButton(2);
-        }
-        else if (vb.Equals(blueBehaviour))
-        {
-            ReleaseButton(3);
-        }
+
+
     }
 
     public void BackToMenu()
@@ -739,6 +752,7 @@ public class ButtonsScript : MonoBehaviour, IVirtualButtonEventHandler  //, ITra
         ApplicationModel.twoPlayers = false;
         ApplicationModel.traditional = false;
         SceneManager.LoadScene(0);
+        //SceneManager.UnloadScene(1);
 
     }
 

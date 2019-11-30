@@ -18,7 +18,7 @@ public class ApplicationModel : MonoBehaviour {
         }
         else
         {
-            script.PlayToggleOn();
+            script.PlayToggleOff();
 
         }
 
@@ -34,7 +34,7 @@ public class ApplicationModel : MonoBehaviour {
         }
         else
         {
-            script.PlayToggleOn();
+            script.PlayToggleOff();
 
         }
     }
